@@ -35,15 +35,38 @@ const selectUsuarioDatos = async (usuarioDatos) => {
     return result[0]
 }
 
-export { selectAllUsers, selectUsuarioPorId, selectUsuarioPorDNI, selectUsuariosPorLocalidad, selectUsuariosPorComunicaciones, selectUsuariosPorApellido, selectUsuarioDatos }
+const insertNuevoUsuario = async ({
+    dni, nombre, apellidos, fecha_nacimiento = null, telefono = null, email = null, direccion = null, localidad = null, codigo_postal = null, acepta_comunicaciones = null, fecha_alta = null
+}) => {
+    const [result] = await db.execute(
+        `insert into dueno
+            (dni, nombre, apellidos, fecha_nacimiento, telefono, email, direccion, localidad, codigo_postal, acepta_comunicaciones, fecha_alta)
+         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [dni, nombre, apellidos, fecha_nacimiento, telefono, email, direccion, localidad, codigo_postal, acepta_comunicaciones, fecha_alta]
+    )
+    return result.insertId
+}
 
-/* ===== MI VERSIÓN (antes de que Juan lo cambiara a ...Users) =====
-import db from '../config/db.js'
+const deleteUsuarioPorId = async (idUsuario) => {
+    const [result] = await db.execute('delete from dueno where id = ?', [idUsuario])
+    if (result.affectedRows === 1) {
+        return { status: true, message: 'El usuario se ha borrado correctamente' }
+    } else {
+        return { status: false, message: 'Ha ocurrido un error intentalo de nuevo' }
+    }
+}
 
-const selectAll = async () => {
-    //aqui dentro vamos a hacer la consulta a BBDD => select * from dueno
-    const [result] = await db.execute('select * from dueno')
+const updateUsuarioPorId = async (idUsuario, {
+    dni, nombre, apellidos, fecha_nacimiento = null, telefono = null, email = null, direccion = null, localidad = null, codigo_postal = null, acepta_comunicaciones = null, fecha_alta = null
+}) => {
+    const [result] = await db.execute(`update dueno
+     set dni = ?, nombre = ?, apellidos = ?, fecha_nacimiento = ?, telefono = ?,
+         email = ?, direccion = ?, localidad = ?, codigo_postal = ?,
+         acepta_comunicaciones = ?, fecha_alta = ?
+     where id = ?`,
+        [dni, nombre, apellidos, fecha_nacimiento, telefono, email, direccion, localidad, codigo_postal, acepta_comunicaciones, fecha_alta, idUsuario])
     return result
 }
 
-export { selectAll }*/
+export { selectAllUsers, selectUsuarioPorId, selectUsuarioPorDNI, selectUsuariosPorLocalidad, selectUsuariosPorComunicaciones, selectUsuariosPorApellido, selectUsuarioDatos, insertNuevoUsuario, deleteUsuarioPorId, updateUsuarioPorId }
+

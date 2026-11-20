@@ -1,4 +1,5 @@
-import { selectAllUsers, selectUsuarioPorId, selectUsuarioPorDNI, selectUsuariosPorLocalidad, selectUsuariosPorComunicaciones, selectUsuariosPorApellido, selectUsuarioDatos } from "../models/usuarios.model.js";
+import { selectAllUsers, selectUsuarioPorId, selectUsuarioPorDNI, selectUsuariosPorLocalidad, selectUsuariosPorComunicaciones, selectUsuariosPorApellido, selectUsuarioDatos, insertNuevoUsuario, deleteUsuarioPorId, updateUsuarioPorId } 
+from "../models/usuarios.model.js";
 
 
 const getAllUsers = async (req, res) => {
@@ -8,45 +9,60 @@ const getAllUsers = async (req, res) => {
 
 //
 
-const usuarioPorid = async (req, res) => {
+const getUsuarioPorId = async (req, res) => {
     const usuario = await selectUsuarioPorId(Number(req.params.idUsuario))
     res.json(usuario)
 }
 
-const usuarioPorDNI = async (req, res) => {
+const getUsuarioPorDNI = async (req, res) => {
     const usuario = await selectUsuarioPorDNI((req.params.dni))
     res.json(usuario)
 }
  
-const usuariosPorLocalidad = async (req, res) => {
+const getUsuariosPorLocalidad = async (req, res) => {
     const usuarios = await selectUsuariosPorLocalidad((req.params.localidad))
     res.json(usuarios)
 }
 
-const usuariosPorComunicaciones = async (req, res) => {
+const getUsuariosPorComunicaciones = async (req, res) => {
     const usuarios = await selectUsuariosPorComunicaciones ((req.params.comunicaciones))
     res.json(usuarios)
 }
 
-const usuariosPorApellido = async (req, res) => {
+const getUsuariosPorApellido = async (req, res) => {
     const usuarios = await selectUsuariosPorApellido ((req.params.apellido))
     res.json(usuarios)
 }
 
-const usuarioDatos = async (req, res) => {
+const getUsuarioDatos = async (req, res) => {
     const usuario = await selectUsuarioDatos (Number(req.params.idUsuario))
     res.json(usuario)
 }
 
-export { getAllUsers, usuarioPorid, usuarioPorDNI, usuariosPorLocalidad, usuariosPorComunicaciones, usuariosPorApellido, usuarioDatos }
-
-
-/* ===== MI VERSIÓN (antes de que Juan lo cambiara a ...Users) =====
-import { selectAll } from "../models/usuarios.model.js"
-
-const getAll = async (req, res) => {
-    const usuarios = await selectAll()
-    res.json(usuarios)
+const insertUsuario = async (req, res) => {
+    const idNuevoUsuario = await insertNuevoUsuario ((req.body))
+    const usuario = await selectUsuarioPorId(idNuevoUsuario)
+    res.json(usuario)
 }
 
-export { getAll }*/
+const deleteUsuario = async (req, res) => {
+    const response = await deleteUsuarioPorId(Number(req.params.idUsuario))
+    res.json(response)
+}
+
+const editUsuario = async (req, res) => {
+    const dataUsuario = req.body
+    const idUsuario = Number(req.params.idUsuario)
+
+    const respuesta = await updateUsuarioPorId(idUsuario, dataUsuario)
+
+    if (respuesta.affectedRows === 1) {
+        const usuario = await selectUsuarioPorId(idUsuario)
+        res.json(usuario)
+    } else {
+        res.json({ status: false, message: "No se ha podido actualizar el usuario" })
+    }
+}
+
+export { getAllUsers, getUsuarioPorId, getUsuarioPorDNI, getUsuariosPorLocalidad, getUsuariosPorComunicaciones, getUsuariosPorApellido, getUsuarioDatos, insertUsuario, deleteUsuario, editUsuario }
+
